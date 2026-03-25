@@ -1,0 +1,32 @@
+Autonomous Monitor - PCAP Run Summary
+==================================================
+
+Total cycles: 3
+Total packets: 3000
+
+PCAP Files Created:
+  - cycle_01_capture.pcap
+  - cycle_02_capture.pcap
+  - cycle_03_capture.pcap
+
+Open in Wireshark: wireshark /home/ubuntu/envelope_pcap_output_20260325_213444/cycle_01_capture.pcap
+
+Results:
+--------------------------------------------------
+
+Cycle 1:
+  ρ_real: 0.4917
+  ρ_env: 0.5400
+  P99: 14.13 μs
+
+Cycle 2:
+  ρ_real: 0.4006
+  ρ_env: 0.4300
+  P99: 10.59 μs
+
+Cycle 3:
+  ρ_real: 0.4849
+  ρ_env: 0.5200
+  predicted: 0.5313
+  error: 2.18%
+  P99: 13.03 μs

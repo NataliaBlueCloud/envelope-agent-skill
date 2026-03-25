@@ -1,0 +1,27 @@
+Cycle 1 Analysis Results
+==================================================
+
+PCAP File: cycle_01_capture.pcap
+CSV File: cycle_01_data.csv
+
+Input Data:
+  Packets: 1000
+  Avg packet size: 1764.77 bytes
+  Target ρ: 0.4540
+
+Step 2 - Calculated ρ_real: 0.4917
+
+Step 3 - Polynomial Prediction:
+  No prediction yet
+
+Step 4 - Ground Truth:
+  Actual ρ_env: 0.5400
+  Fit quality: excellent
+
+Step 5 - Error: 0.00%
+Step 6 - Action: normal
+
+Step 7 - Percentiles (using ρ_env=0.5400):
+  P50: 2.13 μs
+  P90: 7.07 μs
+  P99: 14.13 μs
