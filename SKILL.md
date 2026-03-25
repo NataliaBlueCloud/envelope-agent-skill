@@ -82,9 +82,49 @@ print(f"ρ_env: {result['rho_env']:.3f}")
 print(f"P99 bound: {result['p99_bound_us']:.2f} μs")
 ```
 
-**Dependencies:**
+### Option 6: Direct Live Capture with tcpdump
+
+```python
+from scripts.envelope_agent import capture_and_analyze_tcpdump
+
+# Capture 30 seconds on eth0 and analyze immediately
+result = capture_and_analyze_tcpdump(
+    interface='eth0',
+    duration_seconds=30,
+    link_rate_gbps=10
+)
+
+print(f"Packets captured: {result['capture_info']['packets_captured']}")
+print(f"P99 bound: {result['p99_bound_us']:.2f} μs")
+```
+
+**Or use the low-level API for more control:**
+
+```python
+from scripts.tcpdump_capture import TCPDumpCapture
+
+capture = TCPDumpCapture(interface='eth0', link_rate_gbps=10)
+
+# Capture with progress callback
+def on_progress(info):
+    print(f"Capturing... {info['progress_pct']:.1f}%")
+
+result = capture.capture_and_analyze(
+    duration_seconds=30,
+    callback=on_progress
+)
+```
+
+**Requirements:**
 ```bash
-pip install scapy  # or dpkt (faster, lighter)
+sudo apt-get install tcpdump    # Debian/Ubuntu
+sudo yum install tcpdump        # RHEL/CentOS
+brew install tcpdump            # macOS
+```
+
+**Run with sudo** (tcpdump needs root for packet capture):
+```bash
+sudo python3 your_script.py
 ```
 
 ## Supported Traffic Patterns
@@ -135,7 +175,10 @@ The agent accepts:
 
 - `scripts/envelope_agent.py` — Core Algorithm 1 implementation
 - `scripts/adaptive_monitor.py` — **Continuous monitoring with auto-recalibration**
+- `scripts/autonomous_monitor.py` — **Permanent autonomous monitoring with error-based polynomial refitting**
 - `scripts/traffic_generator.py` — Generate M/G/1 traffic with various packet size distributions
+- `scripts/pcap_parser.py` — **PCAP file reader (scapy/dpkt)**
+- `scripts/tcpdump_capture.py` — **Live packet capture with tcpdump integration**
 
 ## Adaptive Monitoring (NEW)
 
@@ -179,6 +222,91 @@ model = monitor.learn_polynomial_model(
 
 print(model['polynomial'])
 # Output: ρ_env = 0.52 + 0.15·ρ_real + 0.35·ρ_real²
+```
+
+## Autonomous Permanent Monitoring
+
+The `AutonomousEnvelopeMonitor` runs forever, automatically capturing packets and refitting models when errors exceed threshold:
+
+```python
+from scripts.autonomous_monitor import run_autonomous_monitor
+
+# Permanent monitoring with automatic polynomial refitting
+run_autonomous_monitor(
+    interface='eth0',
+    window_size=10000,           # Capture 10k samples per cycle
+    error_threshold_pct=15.0,     # Refit polynomial if error > 15%
+    link_rate_gbps=10,
+    max_cycles=None               # None = run forever
+)
+```
+
+### Autonomous Workflow
+
+```
+┌─────────────────┐     ┌──────────────┐     ┌─────────────────┐
+│ Capture 10k     │────▶│ Fit Envelope │────▶│ Estimate Error  │
+│ packets         │     │ Model        │     │ vs Polynomial   │
+└─────────────────┘     └──────────────┘     └─────────────────┘
+                                                        │
+                           ┌────────────────────────────┘
+                           │ Error > 15%?
+                           ▼
+              ┌────────────────────┐
+              │ YES: Refit         │
+              │ Polynomial Model   │
+              └────────────────────┘
+                           │
+                           ▼
+              ┌────────────────────┐
+              │ Estimate P50/P90/  │
+              │ P99 Percentiles    │
+              └────────────────────┘
+                           │
+                           ▼
+              ┌────────────────────┐
+              │ Repeat Cycle       │
+              │ (Forever)          │
+              └────────────────────┘
+```
+
+### Features
+
+| Feature | Description |
+|---------|-------------|
+| **Automatic Capture** | tcpdump integration for live packets |
+| **Window-based** | Processes 10k samples per cycle |
+| **Error Detection** | Compares envelope vs polynomial prediction |
+| **Auto-Refit** | Retrains polynomial when error > threshold |
+| **Percentile Estimation** | Continuously estimates P50/P90/P99 |
+| **Event Logging** | Records all cycles and actions |
+
+### Usage Modes
+
+**Live Capture (Production):**
+```python
+from scripts.autonomous_monitor import AutonomousEnvelopeMonitor
+
+monitor = AutonomousEnvelopeMonitor(
+    interface='eth0',
+    window_size=10000,
+    error_threshold_pct=15.0,
+    use_live_capture=True
+)
+
+monitor.run_permanent(max_cycles=None)  # Run forever
+```
+
+**Synthetic (Testing):**
+```python
+# Test without network access
+monitor = AutonomousEnvelopeMonitor(
+    window_size=10000,
+    error_threshold_pct=15.0,
+    use_live_capture=False  # Uses synthetic traffic
+)
+
+monitor.run_permanent(max_cycles=10)  # Run 10 cycles
 ```
 
 ## References
