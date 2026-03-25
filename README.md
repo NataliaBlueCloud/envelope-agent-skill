@@ -4,7 +4,7 @@
 
 This agent skill implements an autonomous system that learns M/M/1 envelope models from real M/G/1 network traffic. It captures packet traces, fits tight delay bounds, and automatically adapts its polynomial model when prediction errors exceed a threshold — all without manual tuning.
 
-Based on the research paper: *"Upper bound latency percentiles for high-speed coherent pluggables: An empirical model and its AI agent assistant"* by Koneva et al.
+Based on the research paper: *"On finding empirical upper bound models for latency guarantees in packet-optical networks"* by N. Koneva, A. Sánchez-Macián, J. A. Hernández, F. Arpanaei, O. González de Dios
 
 ---
 
@@ -208,21 +208,11 @@ To use this skill with OpenClaw:
 
 If you use this code, please cite the original paper:
 
-```bibtex
-@article{koneva2025envelope,
-  title={Upper bound latency percentiles for high-speed coherent pluggables: 
-         An empirical model and its AI agent assistant},
-  author={Koneva, Nataliia and S{\'a}nchez-Maci{\'a}n, Alfonso and 
-          Hern{\'a}ndez, Jos{\'e} Alberto and others},
-  year={2025}
-}
-```
 
 ---
 
 ## License
 
-MIT License - See LICENSE file for details.
 
 ---
 
@@ -230,4 +220,3 @@ MIT License - See LICENSE file for details.
 
 - Original paper repository: [MG1-to-MM1-Envelope-Approximation](https://github.com/NataliaBlueCloud/MG1-to-MM1-Envelope-Approximation)
 - OpenClaw framework: [openclaw/openclaw](https://github.com/openclaw/openclaw)
-- Mermaid diagrams for paper: See `docs/*.mmd`
